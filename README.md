@@ -16,7 +16,7 @@ To generate a password of 5 concatenated common English words, type:
 It's best to pipe the output into a temporary file so it's not cached by your terminal window:
 
     python dictpassword --wordlist english-common 5 > pass.txt
-    // remember password, store in 1password, etc 
+    // remember password, then securely remove
     srm pass.txt
 
 The security of dictionary passwords comes from **uniform sampling** of a large body of words. Even if an attacker knew your password was drawn from a wordlist, and knew the wordlist you used, the number of possible passwords is still combinatorial in the number of words your password contains. For instance, using a (common) list of 60,000 words, a 4 word password has
