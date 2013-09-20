@@ -46,7 +46,7 @@ class DictPassword(object):
 
     # if we're mis-spelling, pick a random word to modify
     for n in (n for n in random.sample(xrange(N), N) if password[n] in self.phonemes):
-      password.append(self.phonemes[password[n]])
+      password[n] = self.phonemes[password[n]]
       break
     return password
 
@@ -63,13 +63,10 @@ class DictPassword(object):
 
     for key, phoneme in self.phonemes.iteritems():
       # remove the emphasis marks
-      print key
-      print phoneme
       phoneme = ''.join([i for i in phoneme if not i.isdigit()]).split()
       # transform
       phoneme = ''.join([remap[i] for i in phoneme])
       self.phonemes[key] = phoneme
-      print phoneme
 
 if __name__ == '__main__':
   from argparse import ArgumentParser
