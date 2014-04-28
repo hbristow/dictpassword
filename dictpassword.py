@@ -1,5 +1,10 @@
 #!/usr/bin/env python
-import os, re, random
+import platform
+import sys
+import os
+import re
+import random
+from datetime import datetime
 
 class DictPassword(object):
   def __init__(self, wordlist_file=None, misspell=False):
@@ -30,16 +35,28 @@ class DictPassword(object):
         for index, line in enumerate(f):
           self.words.append(line.rstrip().lower())
 
+  def seed(self):
+    """Seed the random number generator
+
+    Seed the random number generator based on concatenation of:
+      - Python version
+      - Platform specs
+      - Process ID
+      - current time
+    """
+    seedval = platform.platform() + sys.version + str(os.getpid()) + str(datetime.now())
+    random.seed(seedval)
+
 
   def gen(self, N):
-    '''
+    """
     Selects words from the list from N bernoulli random trials. That
     is, returns N words uniformly sampled from the input list of 
     words
-    '''
+    """
 
     # get some random samples
-    random.seed() 
+    self.seed() 
     password = [word.lower() for word in random.sample(self.words, N)]
     if not self.misspell:
       return password
