@@ -1,89 +1,32 @@
 #!/usr/bin/env python
-import platform
-import sys
+import math
 import os
-import re
 import random
-from datetime import datetime
+import sys
 
 class DictPassword(object):
-  def __init__(self, wordlist_file=None, misspell=False):
-    module = os.path.dirname(os.path.realpath(__file__))
-    syllable_file = os.path.join(module, 'english-syllables')
-    digits = re.compile('\d')
-    self.phonemes = dict()
-    self.words = list()
-    self.misspell = misspell
-    
-    # create a map from words to phonemes
-    if misspell:
-      with open(syllable_file, 'r') as f:
-        for index, line in enumerate(f):
-          line = line.rstrip().split(None, 1)
-          if bool(digits.search(line[0])):
-            continue
-          self.phonemes[line[0].lower()] = line[1]
-      self.remapPhonemes()
+  def __init__(self, wordlist_file='/usr/share/dict/words'):
+    """Construct a DictPassword object
 
-    # load the default/custom wordlist
-    if not wordlist_file and misspell:
-      self.words = self.phonemes.keys()
-    if not wordlist_file and not misspell:
-      wordlist_file = os.path.join(module, 'english-common')
-    if not self.words:
-      with open(wordlist_file, 'r') as f:
-        for index, line in enumerate(f):
-          self.words.append(line.rstrip().lower())
-
-  def seed(self):
-    """Seed the random number generator
-
-    Seed the random number generator based on concatenation of:
-      - Python version
-      - Platform specs
-      - Process ID
-      - current time
+    Keyword Args:
+      wordlist_file (str): a file to draw words from. It defaults to
+        /usr/share/dict/words
     """
-    seedval = platform.platform() + sys.version + str(os.getpid()) + str(datetime.now())
-    random.seed(seedval)
-
+    self.randomizer = random.SystemRandom()
+    with open(wordlist_file, 'r') as f:
+      self.words = [line.rstrip().lower() for line in f]
 
   def gen(self, N):
+    """Generate a password from N randomly chosen words
+
+    The generate function uses Python's random.SystemRandom() class
+    which provides a true cryptographically secure source of entropy
+
+    Args:
+      N (int): the number of words to draw
     """
-    Selects words from the list from N bernoulli random trials. That
-    is, returns N words uniformly sampled from the input list of 
-    words
-    """
 
-    # get some random samples
-    self.seed() 
-    password = [word.lower() for word in random.sample(self.words, N)]
-    if not self.misspell:
-      return password
-
-    # if we're mis-spelling, pick a random word to modify
-    for n in (n for n in random.sample(xrange(N), N) if password[n] in self.phonemes):
-      password[n] = self.phonemes[password[n]]
-      break
-    return password
-
-  def remapPhonemes(self):
-    # remap the CMUdict pronunication to something that looks plausible
-    remap = {'AA': 'a', 'AE': 'a', 'AH': 'a',  'AO': 'o', 'AW': 'ow',
-             'AY': 'eye', 'B':  'b',  'CH': 'ch', 'D':  'd',  'DH': 'd',
-             'EH': 'e', 'ER': 'er', 'EY': 'ay', 'F':  'f',  'G':  'g',
-             'HH': 'h',  'IH': 'i',  'IY': 'ee', 'EY': 'ey', 'JH': 'j',  'K':  'k',
-             'L':  'l',  'M':  'm',  'N':  'n',  'NG': 'ng', 'OW': 'o',
-             'OY': 'oy', 'P':  'p',  'R':  'r',  'S':  's',  'SH': 'sh',
-             'T':  't',  'TH': 'th', 'UH': 'uh', 'UW': 'oo', 'V':  'v',
-             'W':  'w',  'Y':  'y',  'Z':  'z',  'ZH': 'z'}
-
-    for key, phoneme in self.phonemes.iteritems():
-      # remove the emphasis marks
-      phoneme = ''.join([i for i in phoneme if not i.isdigit()]).split()
-      # transform
-      phoneme = ''.join([remap[i] for i in phoneme])
-      self.phonemes[key] = phoneme
+    return [self.randomizer.choice(self.words) for n in range(0,N)]
 
 if __name__ == '__main__':
   from argparse import ArgumentParser
@@ -91,21 +34,18 @@ if __name__ == '__main__':
 
   # parse the input arguments
   parser = ArgumentParser(description='Generates a password from uniformly sampled dictionary words')
-  parser.add_argument('-w', '--wordlist', default=None, 
+  parser.add_argument('-w', '--wordlist', default='/usr/share/dict/words', 
     help='A custom wordlist file containing one word per line')
-  parser.add_argument('-s', '--misspell', action="store_true",
-    help='Mis-spell one of the words by replacing its true spelling with a phonetic equivalent. Increases\
-     resistence to dictionary attacks')
   parser.add_argument('N', metavar='N', type=int,
     help='The number of random trials (words)')
   args = parser.parse_args()
 
   # generate the password
-  dp = DictPassword(args.wordlist, args.misspell)
-  password_list = dp.gen(args.N)
+  dp = DictPassword(args.wordlist)
+  password = dp.gen(args.N)
 
-  password_hr = '-'.join(password_list)
-  password = ''.join(password_list)
-  entropy = len(password) * log10(26.0)/log10(2.0)
-  print password + '  (' + password_hr + ')  Entropy ' + str(entropy) + ' bits'
+  # compute the password entropy
+  entropy = len(password) * math.log(len(dp.words), 2)
 
+  # display the password to the user
+  print('Passphrase: {0}\nEntropy: ~{1} bits'.format('-'.join(password), str(entropy)))
