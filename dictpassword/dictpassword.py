@@ -28,17 +28,24 @@ class DictPassword(object):
 
     return [self.randomizer.choice(self.words) for n in range(0,N)]
 
-if __name__ == '__main__':
+def main():
   from argparse import ArgumentParser
-  from math import log10
+
+  # module path
+  module = os.path.dirname(os.path.abspath(__file__))
 
   # parse the input arguments
   parser = ArgumentParser(description='Generates a password from uniformly sampled dictionary words')
-  parser.add_argument('-w', '--wordlist', default='/usr/share/dict/words', 
-    help='A custom wordlist file containing one word per line')
-  parser.add_argument('N', metavar='N', type=int,
+  parser.add_argument('-w', '--wordlist', default='common', 
+    help="A custom wordlist file containing one word per line. Use 'common' or 'full' to access "
+         "builtin english wordlists with 60,000 and 235,000 words respectively. (Default common)")
+  parser.add_argument('N', metavar='N', type=int, nargs='?', default=4,
     help='The number of random trials (words)')
   args = parser.parse_args()
+
+  # compute the wordlist being used
+  if args.wordlist in ['common', 'full']:
+    args.wordlist = os.path.join(module, args.wordlist)
 
   # generate the password
   dp = DictPassword(args.wordlist)
@@ -49,3 +56,6 @@ if __name__ == '__main__':
 
   # display the password to the user
   print('Passphrase: {0}\nEntropy: ~{1} bits'.format('-'.join(password), str(entropy)))
+
+if __name__ == '__main__':
+  main()
