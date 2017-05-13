@@ -1,6 +1,7 @@
 #
 # Dictpassword
 #
+
 """
 Cryptographically secure passphrase generator.
 
