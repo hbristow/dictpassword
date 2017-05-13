@@ -7,7 +7,7 @@ import setuptools
 #
 # Dictpassword: Cryptographically secure passphrase generator.
 #
-setup(name='dictpassword',
+setuptools.setup(name='dictpassword',
     version='1.0',
     description='Cryptographically secure passphrase generator',
     long_description=open('README.md').read(),
