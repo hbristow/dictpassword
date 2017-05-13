@@ -1,30 +1,24 @@
-import os
-import sys
-import time
-import subprocess
-from setuptools import setup
+#
+# Dictpassword
+#
 
-# ----------------------------------------------------------------------------
-# HELPERS
-# ----------------------------------------------------------------------------
-def read(file):
-    """Read the contents of a file into a string"""
-    with open(file, 'r') as f:
-        return f.read()
+import setuptools
 
-# ----------------------------------------------------------------------------
-# SETUP
-# ----------------------------------------------------------------------------
+#
+# Dictpassword: Cryptographically secure passphrase generator.
+#
 setup(name='dictpassword',
-    version='0.1',
+    version='1.0',
     description='Cryptographically secure passphrase generator',
-    long_description=read('README.md'),
+    long_description=open('README.md').read(),
     keywords='python password passphrase crypto entropy',
     url='https://github.com/hbristow/dictpassword/',
     author='Hilton Bristow',
     author_email='hilton.bristow+dictpassword@gmail.com',
-    license='GPL',
-    packages=['dictpassword'],
+    license='BSD',
+    packages=[
+        'dictpassword'
+    ],
     package_data = {
         'dictpassword': [
             'common',
@@ -36,5 +30,17 @@ setup(name='dictpassword',
             'dictpassword = dictpassword.dictpassword:main'
         ]
     },
+    classifiers=[
+        'Natural Language :: English',
+        'Intended Audience :: Developers',
+        'Operating System :: OS Independent',
+        'License :: OSI Approved :: BSD License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Topic :: Security :: Cryptography',
+    ],
     zip_safe=False
 )
